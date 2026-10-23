@@ -1,0 +1,72 @@
+
+name: BAJ-NEMO - Build Android et iOS
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  android:
+    name: Build Android APK et AAB
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.1"
+          channel: stable
+          cache: true
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Construire APK
+        run: flutter build apk --release
+
+      - name: Construire App Bundle
+        run: flutter build appbundle --release
+
+      - name: Publier les fichiers Android
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAJ-NEMO-Android
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+            build/app/outputs/bundle/release/*.aab
+
+  ios:
+    name: Build iOS
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Installer Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.1"
+          channel: stable
+          cache: true
+
+      - name: Installer les dépendances
+        run: flutter pub get
+
+      - name: Construire iOS sans signature
+        run: flutter build ios --release --no-codesign
+
+      - name: Publier les fichiers iOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: BAJ-NEMO-iOS
+          path: |
+            build/ios/iphoneos/*.app
+            build/ios/**/*.dSYM
+          if-no-files-found: warn
