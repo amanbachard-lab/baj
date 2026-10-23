@@ -9,14 +9,40 @@ workflows:
       flutter: 3.35.1
 
     scripts:
-      - name: Installer les dépendances
+      - name: Installer les dependances
         script: flutter pub get
 
       - name: Analyser le code
         script: flutter analyze
 
-      - name: Générer l'APK Android
-        script: flutter build apk --debug
+      - name: Construire APK Android
+        script: flutter build apk --release
+
+      - name: Construire Android App Bundle
+        script: flutter build appbundle --release
 
     artifacts:
       - build/app/outputs/flutter-apk/*.apk
+      - build/app/outputs/bundle/release/*.aab
+
+  baj_ios:
+    name: BAJ-NEMO iOS
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    environment:
+      flutter: 3.35.1
+
+    scripts:
+      - name: Installer les dependances
+        script: flutter pub get
+
+      - name: Analyser le code
+        script: flutter analyze
+
+      - name: Construire iOS
+        script: flutter build ios --release --no-codesign
+
+    artifacts:
+      - build/ios/iphoneos/*.app
+      - build/ios/**/*.dSYM
