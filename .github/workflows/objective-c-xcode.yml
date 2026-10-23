@@ -3,17 +3,11 @@ name: BAJ-NEMO - Build Android et iOS
 
 on:
   push:
-<<<<<<< HEAD
     branches:
       - main
   pull_request:
     branches:
       - main
-=======
-    branches: [main]
-  pull_request:
-    branches: [main]
->>>>>>> 48c8825 (Add iOS build diagnostics)
   workflow_dispatch:
 
 permissions:
@@ -43,11 +37,7 @@ jobs:
       - name: Construire APK Android
         run: flutter build apk --release
 
-<<<<<<< HEAD
       - name: Construire Android App Bundle
-=======
-      - name: Construire AAB
->>>>>>> 48c8825 (Add iOS build diagnostics)
         run: flutter build appbundle --release
 
       - name: Publier les artefacts Android
@@ -58,10 +48,7 @@ jobs:
             build/app/outputs/flutter-apk/*.apk
             build/app/outputs/bundle/release/*.aab
           if-no-files-found: error
-<<<<<<< HEAD
           retention-days: 7
-=======
->>>>>>> 48c8825 (Add iOS build diagnostics)
 
   ios:
     name: Build iOS
@@ -73,48 +60,32 @@ jobs:
         with:
           ref: ${{ github.sha }}
 
-      - name: Vérifier le dépôt et les fichiers iOS
-        shell: bash
-        run: |
-          echo "Répertoire courant :"
-          pwd
-
-          echo "Commit compilé :"
-          git rev-parse HEAD
-
-          echo "Racine du dépôt :"
-          git rev-parse --show-toplevel
-
-          echo "Fichiers Xcode suivis par Git :"
-          git ls-files ios/Runner.xcodeproj
-
-          echo "Contenu du dossier ios :"
-          ls -la ios || true
-
-          echo "Contenu du projet Xcode :"
-          ls -la ios/Runner.xcodeproj || true
-
-          if [ ! -f ios/Runner.xcodeproj/project.pbxproj ]; then
-            echo "::error::Le fichier ios/Runner.xcodeproj/project.pbxproj est absent du dépôt compilé."
-            exit 1
-          fi
-
       - name: Diagnostic du projet iOS
         shell: bash
         run: |
           echo "=== RACINE DU DEPOT ==="
           pwd
           git rev-parse --show-toplevel
+
           echo "=== COMMIT ==="
           git rev-parse HEAD
-          echo "=== FICHIERS XCODE SUR GITHUB ==="
+
+          echo "=== FICHIERS XCODE SUIVIS PAR GIT ==="
+          git ls-files ios/Runner.xcodeproj
+
+          echo "=== FICHIERS XCODE SUR LE COMMIT ==="
           git ls-tree -r --name-only HEAD ios/Runner.xcodeproj
+
           echo "=== DOSSIER IOS ==="
           ls -la ios
+
           echo "=== DOSSIER RUNNER.XCODEPROJ ==="
           ls -la ios/Runner.xcodeproj || true
-          echo "=== VERIFICATION ==="
-          test -f ios/Runner.xcodeproj/project.pbxproj
+
+          if [ ! -f ios/Runner.xcodeproj/project.pbxproj ]; then
+            echo "::error::Le fichier ios/Runner.xcodeproj/project.pbxproj est absent."
+            exit 1
+          fi
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
@@ -126,11 +97,7 @@ jobs:
       - name: Installer les dépendances
         run: flutter pub get
 
-<<<<<<< HEAD
       - name: Vérifier la configuration Flutter iOS
-=======
-      - name: Vérifier la configuration iOS
->>>>>>> 48c8825 (Add iOS build diagnostics)
         run: flutter doctor -v
 
       - name: Construire iOS sans signature
