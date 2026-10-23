@@ -1,0 +1,1 @@
+Configurez les permissions de localisation dans AndroidManifest.xml si vous activez la géolocalisation. Google Maps nécessite une clé API pour l'affichage natif des cartes. Les itinéraires externes Google Maps fonctionnent via URL.
