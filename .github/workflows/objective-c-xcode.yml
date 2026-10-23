@@ -3,10 +3,15 @@ name: BAJ-NEMO - Build Android et iOS
 
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   android:
@@ -14,8 +19,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout du dépôt
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
@@ -27,10 +34,10 @@ jobs:
       - name: Installer les dépendances
         run: flutter pub get
 
-      - name: Construire APK
+      - name: Construire APK Android
         run: flutter build apk --release
 
-      - name: Construire App Bundle
+      - name: Construire Android App Bundle
         run: flutter build appbundle --release
 
       - name: Publier les fichiers Android
@@ -40,14 +47,44 @@ jobs:
           path: |
             build/app/outputs/flutter-apk/*.apk
             build/app/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 7
 
   ios:
     name: Build iOS
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout du dépôt
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Vérifier le dépôt et les fichiers iOS
+        shell: bash
+        run: |
+          echo "Répertoire courant :"
+          pwd
+
+          echo "Commit compilé :"
+          git rev-parse HEAD
+
+          echo "Racine du dépôt :"
+          git rev-parse --show-toplevel
+
+          echo "Fichiers Xcode suivis par Git :"
+          git ls-files ios/Runner.xcodeproj
+
+          echo "Contenu du dossier ios :"
+          ls -la ios || true
+
+          echo "Contenu du projet Xcode :"
+          ls -la ios/Runner.xcodeproj || true
+
+          if [ ! -f ios/Runner.xcodeproj/project.pbxproj ]; then
+            echo "::error::Le fichier ios/Runner.xcodeproj/project.pbxproj est absent du dépôt compilé."
+            exit 1
+          fi
 
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
@@ -58,6 +95,9 @@ jobs:
 
       - name: Installer les dépendances
         run: flutter pub get
+
+      - name: Vérifier la configuration Flutter iOS
+        run: flutter doctor -v
 
       - name: Construire iOS sans signature
         run: flutter build ios --release --no-codesign
@@ -70,3 +110,4 @@ jobs:
             build/ios/iphoneos/*.app
             build/ios/**/*.dSYM
           if-no-files-found: warn
+          retention-days: 7
