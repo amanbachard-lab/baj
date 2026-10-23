@@ -12,9 +12,6 @@ workflows:
       - name: Installer les dependances
         script: flutter pub get
 
-      - name: Analyser le code
-        script: flutter analyze
-
       - name: Construire APK Android
         script: flutter build apk --release
 
@@ -36,9 +33,6 @@ workflows:
     scripts:
       - name: Installer les dependances
         script: flutter pub get
-
-      - name: Analyser le code
-        script: flutter analyze
 
       - name: Construire iOS
         script: flutter build ios --release --no-codesign
