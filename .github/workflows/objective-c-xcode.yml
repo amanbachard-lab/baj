@@ -1,13 +1,19 @@
-
+﻿
 name: BAJ-NEMO - Build Android et iOS
 
 on:
   push:
+<<<<<<< HEAD
     branches:
       - main
   pull_request:
     branches:
       - main
+=======
+    branches: [main]
+  pull_request:
+    branches: [main]
+>>>>>>> 48c8825 (Add iOS build diagnostics)
   workflow_dispatch:
 
 permissions:
@@ -37,10 +43,14 @@ jobs:
       - name: Construire APK Android
         run: flutter build apk --release
 
+<<<<<<< HEAD
       - name: Construire Android App Bundle
+=======
+      - name: Construire AAB
+>>>>>>> 48c8825 (Add iOS build diagnostics)
         run: flutter build appbundle --release
 
-      - name: Publier les fichiers Android
+      - name: Publier les artefacts Android
         uses: actions/upload-artifact@v4
         with:
           name: BAJ-NEMO-Android
@@ -48,7 +58,10 @@ jobs:
             build/app/outputs/flutter-apk/*.apk
             build/app/outputs/bundle/release/*.aab
           if-no-files-found: error
+<<<<<<< HEAD
           retention-days: 7
+=======
+>>>>>>> 48c8825 (Add iOS build diagnostics)
 
   ios:
     name: Build iOS
@@ -86,6 +99,23 @@ jobs:
             exit 1
           fi
 
+      - name: Diagnostic du projet iOS
+        shell: bash
+        run: |
+          echo "=== RACINE DU DEPOT ==="
+          pwd
+          git rev-parse --show-toplevel
+          echo "=== COMMIT ==="
+          git rev-parse HEAD
+          echo "=== FICHIERS XCODE SUR GITHUB ==="
+          git ls-tree -r --name-only HEAD ios/Runner.xcodeproj
+          echo "=== DOSSIER IOS ==="
+          ls -la ios
+          echo "=== DOSSIER RUNNER.XCODEPROJ ==="
+          ls -la ios/Runner.xcodeproj || true
+          echo "=== VERIFICATION ==="
+          test -f ios/Runner.xcodeproj/project.pbxproj
+
       - name: Installer Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -96,13 +126,17 @@ jobs:
       - name: Installer les dépendances
         run: flutter pub get
 
+<<<<<<< HEAD
       - name: Vérifier la configuration Flutter iOS
+=======
+      - name: Vérifier la configuration iOS
+>>>>>>> 48c8825 (Add iOS build diagnostics)
         run: flutter doctor -v
 
       - name: Construire iOS sans signature
         run: flutter build ios --release --no-codesign
 
-      - name: Publier les fichiers iOS
+      - name: Publier les artefacts iOS
         uses: actions/upload-artifact@v4
         with:
           name: BAJ-NEMO-iOS
